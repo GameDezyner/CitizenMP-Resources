@@ -27,7 +27,13 @@ end
 function getAmmoPickup(name)
     return weapon[name]["AMMOPICKUP"]
 end
-
+function getWeaponByHash(hash)
+    for key,value in pairs(weapons) do
+        if value["HASH"] == hash then
+            return key
+        end
+    end
+end
 
 weapons = {
     ["UNARMED"] = {

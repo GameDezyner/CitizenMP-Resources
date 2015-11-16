@@ -6,6 +6,7 @@ export  'getWeaponHash'
 export  'getWeaponType'
 export  'getWeaponPickup'
 export  'getAmmoPickup'
+export  'getWeaponByHash'
 
 export  'giveWeapon'
 export  'takeWeapon'

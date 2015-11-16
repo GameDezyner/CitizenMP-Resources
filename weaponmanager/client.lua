@@ -6,7 +6,7 @@ function giveWeapon(weapon,ammo,equip,loaded)
     GiveWeaponToPed(GetPlayerPed(-1),getWeaponHash(weapon),ammo,equip,loaded)
 end
 RegisterNetEvent('takeWeapon')
-AddEventHandler('takeWeapon',function(weapon,ammo,equip,loaded)
+AddEventHandler('takeWeapon',function(weapon)
     takeWeapon(weapon,ammo)
 end)
 function takeWeapon(weapon)

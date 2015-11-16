@@ -34,7 +34,7 @@ weapons = {
         ["HASH"] = 0xA2719263,
         ["TYPE"] = "UNARMED",
         ["AMMOPICKUP"] = nil,
-        ["WEAPONPICKUP"] = nil,
+        ["WEAPONPICKUP"] = nil
     },    
     ["PISTOL"] = {
         ["HASH"] = 0x1B06D571,
@@ -58,7 +58,7 @@ weapons = {
         ["HASH"] = 0x99AEEB3B,
         ["TYPE"] = "PISTOL",
         ["AMMOPICKUP"] = 0x20796A82,
-        ["WEAPONPICKUP"] = ""
+        ["WEAPONPICKUP"] = 0x6C5B941A
     },
     ["HEAVYPISTOL"] = {
         ["HASH"] = 0xD205520E,
@@ -82,7 +82,7 @@ weapons = {
         ["HASH"] = 0xDC4DB296,
         ["TYPE"] = "PISTOL",
         ["AMMOPICKUP"] = 0x20796A82,
-        ["WEAPONPICKUP"] = ""
+        ["WEAPONPICKUP"] = nil
     },
     ["MICROSMG"] = {
         ["HASH"] = 0x13532244,
@@ -137,12 +137,14 @@ weapons = {
         ["TYPE"] = "RIFLE",
         ["AMMOPICKUP"] = 0xE4BD2FC6,
         ["WEAPONPICKUP"] = 0xB2B5325E
+
     },
     ["SPECIALCARBINE"] = {
         ["HASH"] = 0xC0A3098D,
         ["TYPE"] = "RIFLE",
         ["AMMOPICKUP"] = 0xE4BD2FC6,
         ["WEAPONPICKUP"] = 0x0968339D
+
     },
     ["BULLPUPRIFLE"] = {
         ["HASH"] = 0x7F229F94,
@@ -283,7 +285,7 @@ weapons = {
         ["WEAPONPICKUP"] = 0xC01EB678
     },
     ["GRENADE"] = {
-        ["HASH"] = 0x93E220BD,
+        ["HASH"] = -1813897027,
         ["TYPE"] = "GRENADE",
         ["AMMOPICKUP"] = 0x5E0683A1,
         ["WEAPONPICKUP"] = 0x5E0683A1 --0xA717F898
@@ -342,59 +344,64 @@ weapons = {
         ["AMMOPICKUP"] = 0xF92F486C, --0x602941D0
         ["WEAPONPICKUP"] = 0x22B15640
     },
-    ["PARACHUTE"] = {
-        ["HASH"] = 0x0,
-        ["TYPE"] = "SPECIAL",
-        ["AMMOPICKUP"] = 0x6773257D,
-        ["WEAPONPICKUP"] = 0x6773257D
-    },
-    ["HEALTH_SNACK"] = {
-        ["HASH"] = nil,
-        ["TYPE"] = "EQUIPMENT",
-        ["AMMOPICKUP"] = 0x1CD2CF66,
-        ["WEAPONPICKUP"] = 0x1CD2CF66,
-    },
-    ["ARMOUR_STANDARD"] = {
-        ["HASH"] = nil,
-        ["TYPE"] = "EQUIPMENT",
-        ["AMMOPICKUP"] = 0x4BFB42D1,
-        ["WEAPONPICKUP"] = 0x4BFB42D1,
-    },
-    ["HEALTH_STANDARD"] = {
-        ["HASH"] = nil,
-        ["TYPE"] = "EQUIPMENT",
-        ["AMMOPICKUP"] = 0x8F707C18,
-        ["WEAPONPICKUP"] = 0x8F707C18,
-    },
     ["FIREEXTINGUISHER"] = {
         ["HASH"] = 0x060EC506,
         ["TYPE"] = "SPECIAL",
         ["AMMOPICKUP"] = 0xCB13D282,
-        ["WEAPONPICKUP"] = 0xCB13D282,
+        ["WEAPONPICKUP"] = 0xCB13D282
     },
     ["STUNGUN"] = {
         ["HASH"] = 0x3656C8C1,
         ["TYPE"] = "SPECIAL",
         ["AMMOPICKUP"] = 0xFD16169E,
-        ["WEAPONPICKUP"] = 0xFD16169E,
+        ["WEAPONPICKUP"] = 0xFD16169E
     },
     ["STINGER"] = {
         ["HASH"] = 0x687652CE,
         ["TYPE"] = "SPECIAL",
         ["AMMOPICKUP"] = nil,
-        ["WEAPONPICKUP"] = nil,
+        ["WEAPONPICKUP"] = nil
     },
     ["SNOWBALL"] = {
         ["HASH"] = 0x787F0BB,
         ["TYPE"] = "SPECIAL",
         ["AMMOPICKUP"] = nil,
-        ["WEAPONPICKUP"] = nil,
+        ["WEAPONPICKUP"] = nil
     },
     ["FLAREGUN"] = {
         ["HASH"] = 0x47757124,
-        ["TYPE"] = nil,
+        ["TYPE"] = "SPECIAL",
         ["AMMOPICKUP"] = 0xE013E01C,
-        ["WEAPONPICKUP"] = 0xBD4DE242,
+        ["WEAPONPICKUP"] = 0xBD4DE242
+    },
+    ["HEALTH_SNACK"] = {
+        ["HASH"] = nil,
+        ["TYPE"] = "EQUIPMENT",
+        ["AMMOPICKUP"] = 0x1CD2CF66,
+        ["WEAPONPICKUP"] = 0x1CD2CF66
+    },
+    ["ARMOUR_STANDARD"] = {
+        ["HASH"] = nil,
+        ["TYPE"] = "EQUIPMENT",
+        ["AMMOPICKUP"] = 0x4BFB42D1,
+        ["WEAPONPICKUP"] = 0x4BFB42D1
+    },
+    ["HEALTH_STANDARD"] = {
+        ["HASH"] = nil,
+        ["TYPE"] = "EQUIPMENT",
+        ["AMMOPICKUP"] = 0x8F707C18,
+        ["WEAPONPICKUP"] = 0x8F707C18
+    },
+    ["PARACHUTE"] = {
+        ["HASH"] = 4222310262,
+        ["TYPE"] = "EQUIPMENT",
+        ["AMMOPICKUP"] = 0x6773257D,
+        ["WEAPONPICKUP"] = 0x6773257D
+    },
+    ["NIGHTVISION"] = {
+        ["HASH"] = 2803906140,
+        ["TYPE"] = "EQUIPMENT",
+        ["AMMOPICKUP"] = nil,
+        ["WEAPONPICKUP"] = nil
     }
-    
 }

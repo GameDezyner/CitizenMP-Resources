@@ -1,3 +1,26 @@
+pickupids = {}
+RegisterNetEvent('addPickup')
+AddEventHandler('addPickup',function(hash,ammo,posx,posy,posz,id)
+    addPickup(hash,ammo,posx,posy,posz,id)
+end)
+function addPickup(hash,ammo,posx,posy,posz,id)
+    pickupids[id] = CreatePickup(hash,posx,posy,posz,ammo)
+end
+RegisterNetEvent('killPickup')
+AddEventHandler('killPickup',function(id)
+    RemovePickup(pickupids[id])
+    pickupids[id] = nil
+end)
+function dropItem(hash,ammo,posx,posy,posz)
+    pickup = {
+        hash = hash,
+        ammo = ammo,
+        x = posx,
+        y = posy,
+        z = posz
+    }
+    TriggerServerEvent('dropItem',pickup)
+end
 RegisterNetEvent('giveWeapon')
 AddEventHandler('giveWeapon',function(weapon,ammo,equip,loaded)
     giveWeapon(weapon,ammo,equip,loaded)
@@ -6,26 +29,26 @@ function giveWeapon(weapon,ammo,equip,loaded)
     GiveWeaponToPed(GetPlayerPed(-1),getWeaponHash(weapon),ammo,equip,loaded)
 end
 RegisterNetEvent('takeWeapon')
-AddEventHandler('takeWeapon',function(weapon)
+AddEventHandler('takeWeapon',function(weapon,ammo,equip,loaded)
     takeWeapon(weapon,ammo)
 end)
 function takeWeapon(weapon)
     RemoveWeaponFromPed(GetPlayerPed(-1),getWeaponHash(weapon))
 end
 function getWeapon(name)
-    return weapon[name]
+    return weapons[name]
 end
 function getWeaponHash(name)
-    return weapon[name]["HASH"]
+    return weapons[name]["HASH"]
 end
 function getWeaponType(name)
-    return weapon[name]["TYPE"]
+    return weapons[name]["TYPE"]
 end
 function getWeaponPickup(name)
-    return weapon[name]["WEAPONPICKUP"]
+    return weapons[name]["WEAPONPICKUP"]
 end
 function getAmmoPickup(name)
-    return weapon[name]["AMMOPICKUP"]
+    return weapons[name]["AMMOPICKUP"]
 end
 function getWeaponByHash(hash)
     for key,value in pairs(weapons) do
@@ -34,10 +57,107 @@ function getWeaponByHash(hash)
         end
     end
 end
+------------------------------
+---Listen for Weapon Drops----
+------------------------------
+Citizen.CreateThread(function()
+    while true do
+        Citizen.Wait(0)
+        for key,value in pairs(pickupids) do
+            if key then
+                if HasPickupBeenCollected(pickupids[key]) then
+                    TriggerServerEvent('pickupItem',key)
+                end
+            end
+        end
+    end
+end)
+
+Citizen.CreateThread(function()
+	while true do
+		Citizen.Wait(0)
+		playerPed = GetPlayerPed(-1)
+		if playerPed and playerPed ~= -1 then
+			pos = GetEntityCoords(playerPed)
+            r = math.rad(GetEntityHeading(playerPed)+90)
+            c = 2
+            newpos = {
+                x = c * math.cos(r) + pos.x,
+                y = c * math.sin(r) + pos.y,
+                z = pos.z + 0.5
+            }
+            
+			if IsControlJustPressed(2,56) then
+				curweaponhash = GetSelectedPedWeapon(playerPed)
+	            curweapon = getWeaponByHash(curweaponhash)
+	            curweapontype = getWeaponType(curweapon)
+	            curammo = GetAmmoInPedWeapon(playerPed,curweaponhash)
+	            curpickup = getWeaponPickup(curweapon)
+	            if curweapontype == "UNARMED" then
+	                exports.notificationmanager:showNotification("Can't drop this weapon.")
+                elseif curpickup == nil then
+                    exports.notificationmanager:showNotification("Can't drop this weapon.")
+				else
+                    if curweapontype == "UNARMED" then
+                        exports.notificationmanager:showNotification('Come on, really?')
+                    elseif curweapontype == "MELEE" then
+                        dropItem(curpickup,-1,newpos.x,newpos.y,newpos.z)
+                        takeWeapon(curweapon)
+                        exports.notificationmanager:showNotification('Dropped a melee weapon')
+                    elseif curweapontype == "GRENADE" then
+                        SetPedAmmo(playerPed,curweaponhash,curammo-1)
+                        dropItem(curpickup,1,newpos.x,newpos.y,newpos.z)
+                        exports.notificationmanager:showNotification('Dropped a grenade')
+                    else
+                        dropItem(curpickup,curammo,newpos.x,newpos.y,newpos.z)
+                        takeWeapon(curweapon)
+                        exports.notificationmanager:showNotification('Dropped a weapon')
+                    end
+                end
+			end
+            if IsControlJustPressed(2,57) then
+	            curweaponhash = GetSelectedPedWeapon(playerPed)
+	            curweapon = getWeaponByHash(curweaponhash)
+	            curweapontype = getWeaponType(curweapon)
+	            curammo = GetAmmoInPedWeapon(playerPed,curweaponhash)
+	            curpickup = getAmmoPickup(curweapon)
+	            if curweapontype == "GRENADE" then
+	                curclipsize = 1
+                elseif curpickup == nil then
+                	exports.notificationmanager:showNotification("Can't drop ammo for this weapon.")
+                    exports.notificationmanager:showNotification(curpickup)
+                else
+                    if curweapontype == "GRENADE" then
+                        SetPedAmmo(playerPed,curweaponhash,curammo-1)
+                        dropItem(curpickup,1,newpos.x,newpos.y,newpos.z)
+                        exports.notificationmanager:showNotification('Dropped a grenade.')
+                    elseif curweapontype == "MELEE" or curweapontype == "UNARMED" then
+                        exports.notificationmanager:showNotification('No ammo to drop!')
+                    else
+                        curclipsize = GetWeaponClipSize(curweaponhash)
+                        if curammo > curclipsize then
+                            newammo = curclipsize
+                            SetPedAmmo(playerPed,curweaponhash,curammo-curclipsize)
+                        else
+                            newammo = curammo
+                            SetPedAmmo(playerPed,curweaponhash,0)
+                        end
+                        dropItem(curpickup,newammo,newpos.x,newpos.y,newpos.z)
+                        exports.notificationmanager:showNotification('Dropped ammo.')
+                    end
+                end
+			end
+            if IsControlJustPressed(2,249) then
+                exports.notificationmanager:showNotification(tostring(GetSelectedPedWeapon(playerPed)))
+            end
+        end
+	end
+end)
+
 
 weapons = {
     ["UNARMED"] = {
-        ["HASH"] = 0xA2719263,
+        ["HASH"] = -1569615261,
         ["TYPE"] = "UNARMED",
         ["AMMOPICKUP"] = nil,
         ["WEAPONPICKUP"] = nil
@@ -46,19 +166,19 @@ weapons = {
         ["HASH"] = 0x1B06D571,
         ["TYPE"] = "PISTOL",
         ["AMMOPICKUP"] = 0x20796A82,
-        ["WEAPONPICKUP"] = 0xF9AFB48F --0xA54AE7B7
+        ["WEAPONPICKUP"] = -105925489 --0xF9AFB48F --0xA54AE7B7
     },
     ["COMBATPISTOL"] = {
         ["HASH"] = 0x5EF9FEC4,
         ["TYPE"] = "PISTOL",
         ["AMMOPICKUP"] = 0x20796A82,
-        ["WEAPONPICKUP"] = 0x8967B4F3 --0xD0AACEF7
+        ["WEAPONPICKUP"] = -1989692173 --0x8967B4F3 --0xD0AACEF7
     },
     ["APPISTOL"] = {
         ["HASH"] = 0x22D8FE39,
         ["TYPE"] = "PISTOL",
         ["AMMOPICKUP"] = 0x20796A82,
-        ["WEAPONPICKUP"] = 0x3B662889 --0xCC8B3905
+        ["WEAPONPICKUP"] = 996550793 --0x3B662889 --0xCC8B3905
     },
     ["PISTOL50"] = {
         ["HASH"] = 0x99AEEB3B,
@@ -90,17 +210,23 @@ weapons = {
         ["AMMOPICKUP"] = 0x20796A82,
         ["WEAPONPICKUP"] = nil
     },
+    ["MACHINEPISTOL"] = {
+        ["HASH"] = 0xDB1AA450,
+        ["TYPE"] = "SMG",
+        ["AMMOPICKUP"] = 0x116FC4E6,
+        ["WEAPONPICKUP"] = nil
+    },
     ["MICROSMG"] = {
         ["HASH"] = 0x13532244,
         ["TYPE"] = "SMG",
         ["AMMOPICKUP"] = 0x116FC4E6,
-        ["WEAPONPICKUP"] = 0x1D9588D3 --0xB86AEE5B
+        ["WEAPONPICKUP"] = 496339155 --0x1D9588D3 --0xB86AEE5B
     },
     ["SMG"] = {
         ["HASH"] = 0x2BE6766B,
         ["TYPE"] = "SMG",
         ["AMMOPICKUP"] = 0x116FC4E6,
-        ["WEAPONPICKUP"] = 0x3A4C2AD2 --0xCC7CCD1B
+        ["WEAPONPICKUP"] = 978070226 --0x3A4C2AD2 --0xCC7CCD1B
     },
     ["ASSAULTSMG"] = {
         ["HASH"] = 0xEFE7E2DF,
@@ -130,19 +256,19 @@ weapons = {
         ["HASH"] = 0xBFEFFF6D,
         ["TYPE"] = "RIFLE",
         ["AMMOPICKUP"] = 0xE4BD2FC6,
-        ["WEAPONPICKUP"] = 0xF33C83B0
+        ["WEAPONPICKUP"] = -214137936 --0xF33C83B0
     },
     ["CARBINERIFLE"] = {
         ["HASH"] = 0x83BF0278,
         ["TYPE"] = "RIFLE",
         ["AMMOPICKUP"] = 0xE4BD2FC6,
-        ["WEAPONPICKUP"] = 0xDF711959
+        ["WEAPONPICKUP"] = -546236071 --0xDF711959
     },
     ["ADVANCEDRIFLE"] = {
         ["HASH"] = 0xAF113F99,
         ["TYPE"] = "RIFLE",
         ["AMMOPICKUP"] = 0xE4BD2FC6,
-        ["WEAPONPICKUP"] = 0xB2B5325E
+        ["WEAPONPICKUP"] = -1296747938 --0xB2B5325E
 
     },
     ["SPECIALCARBINE"] = {
@@ -230,23 +356,35 @@ weapons = {
         ["AMMOPICKUP"] = nil,
         ["WEAPONPICKUP"] = nil
     },
+    ["MACHETE"] = {
+        ["HASH"] = 0xDD5DF8D9,
+        ["TYPE"] = "MELEE",
+        ["AMMOPICKUP"] = nil,
+        ["WEAPONPICKUP"] = nil
+    },
+    ["FLASHLIGHT"] = {
+        ["HASH"] = 0x8BB05FD7,
+        ["TYPE"] = "MELEE",
+        ["AMMOPICKUP"] = nil,
+        ["WEAPONPICKUP"] = nil
+    },
     ["PUMPSHOTGUN"] = {
         ["HASH"] = 0x1D073A89,
         ["TYPE"] = "SHOTGUN",
         ["AMMOPICKUP"] = 0x77F3F2DD,
-        ["WEAPONPICKUP"] = 0xA9355DCD
+        ["WEAPONPICKUP"] = -1456120371 --0xA9355DCD
     },
     ["SAWNOFFSHOTGUN"] = {
         ["HASH"] = 0x7846A318,
         ["TYPE"] = "SHOTGUN",
         ["AMMOPICKUP"] = 0x77F3F2DD,
-        ["WEAPONPICKUP"] = 0x96B412A3 --0x2E071B5A
+        ["WEAPONPICKUP"] = -1766583645 --0x96B412A3 --0x2E071B5A
     },
     ["ASSAULTSHOTGUN"] = {
         ["HASH"] = 0xE284C527,
         ["TYPE"] = "SHOTGUN",
         ["AMMOPICKUP"] = 0x77F3F2DD,
-        ["WEAPONPICKUP"] = 0x9299C95B
+        ["WEAPONPICKUP"] = -1835415205 --0x9299C95B
     },
     ["BULLPUPSHOTGUN"] = {
         ["HASH"] = 0x9D61E50F,
@@ -293,8 +431,8 @@ weapons = {
     ["GRENADE"] = {
         ["HASH"] = -1813897027,
         ["TYPE"] = "GRENADE",
-        ["AMMOPICKUP"] = 0x5E0683A1,
-        ["WEAPONPICKUP"] = 0x5E0683A1 --0xA717F898
+        ["AMMOPICKUP"] = 1577485217, --0x5E0683A1,
+        ["WEAPONPICKUP"] = 1577485217 --0x5E0683A1
     },
     ["STICKYBOMB"] = {
         ["HASH"] = 0x2C3731D9,

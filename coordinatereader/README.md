@@ -1,6 +1,6 @@
 ##Usage
-Import this script to allow you to get the coordinates that you are standing on by pressing your push to talk button (Default N). Your current coordinates will appear as a notification in the bottom left. This little tool is good for getting coordinates for spawnpoints.
+When running, this script automatically sends the coordinates of all bullet impacts to the server, which saves them in coords.txt in the root server directory.
+You can also send your current position and heading by pressing the "Multiplayer Info" key (Default Z).
 
-##ToDo
-* Automatically log points to a file on the server
-    
+##Dependencies
+###Requires Notificationmanager

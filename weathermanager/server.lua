@@ -1,7 +1,7 @@
-RegisterNetEvent('setWeather')
+RegisterServerEvent('setWeather')
 AddEventHandler('setWeather',function(weather)
     setWeather(weather)
 end)
 function setWeather(weather)
-    SetWeatherTypeNowPersist(weather)
+    TriggerClientEvent('setWeather',-1,weather)
 end

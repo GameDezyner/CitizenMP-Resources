@@ -61,7 +61,8 @@ end
 ---Listen for Weapon Drops----
 ------------------------------
 Citizen.CreateThread(function()
-    while true do
+    while false do --Disable until properly working
+    --while true do
         Citizen.Wait(0)
         for key,value in pairs(pickupids) do
             if key then
@@ -74,7 +75,8 @@ Citizen.CreateThread(function()
 end)
 
 Citizen.CreateThread(function()
-	while true do
+	while false do --Disable until properly working
+    --while true do
 		Citizen.Wait(0)
 		playerPed = GetPlayerPed(-1)
 		if playerPed and playerPed ~= -1 then

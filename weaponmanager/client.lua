@@ -1,40 +1,23 @@
-pickupids = {}
-RegisterNetEvent('addPickup')
-AddEventHandler('addPickup',function(hash,ammo,posx,posy,posz,id)
-    addPickup(hash,ammo,posx,posy,posz,id)
-end)
-function addPickup(hash,ammo,posx,posy,posz,id)
-    pickupids[id] = CreatePickup(hash,posx,posy,posz,ammo)
-end
-RegisterNetEvent('killPickup')
-AddEventHandler('killPickup',function(id)
-    RemovePickup(pickupids[id])
-    pickupids[id] = nil
-end)
-function dropItem(hash,ammo,posx,posy,posz)
-    pickup = {
-        hash = hash,
-        ammo = ammo,
-        x = posx,
-        y = posy,
-        z = posz
-    }
-    TriggerServerEvent('dropItem',pickup)
-end
+--Register Net Events
 RegisterNetEvent('giveWeapon')
+RegisterNetEvent('takeWeapon')
+
+--Register Event Handlers
 AddEventHandler('giveWeapon',function(weapon,ammo,equip,loaded)
     giveWeapon(weapon,ammo,equip,loaded)
 end)
-function giveWeapon(weapon,ammo,equip,loaded)
-    GiveWeaponToPed(GetPlayerPed(-1),getWeaponHash(weapon),ammo,equip,loaded)
-end
-RegisterNetEvent('takeWeapon')
 AddEventHandler('takeWeapon',function(weapon,ammo,equip,loaded)
     takeWeapon(weapon,ammo)
 end)
-function takeWeapon(weapon)
+
+--Define the actual functions
+function giveWeapon(weapon,ammo,equip,loaded) --Give a weapon to the local player by name
+    GiveWeaponToPed(GetPlayerPed(-1),getWeaponHash(weapon),ammo,equip,loaded)
+end
+function takeWeapon(weapon) --Take a weapon from the local player by name
     RemoveWeaponFromPed(GetPlayerPed(-1),getWeaponHash(weapon))
 end
+--Functions for accessing the weapon dictionary
 function getWeapon(name)
     return weapons[name]
 end
@@ -57,106 +40,8 @@ function getWeaponByHash(hash)
         end
     end
 end
-------------------------------
----Listen for Weapon Drops----
-------------------------------
-Citizen.CreateThread(function()
-    while false do --Disable until properly working
-    --while true do
-        Citizen.Wait(0)
-        for key,value in pairs(pickupids) do
-            if key then
-                if HasPickupBeenCollected(pickupids[key]) then
-                    TriggerServerEvent('pickupItem',key)
-                end
-            end
-        end
-    end
-end)
 
-Citizen.CreateThread(function()
-	while false do --Disable until properly working
-    --while true do
-		Citizen.Wait(0)
-		playerPed = GetPlayerPed(-1)
-		if playerPed and playerPed ~= -1 then
-			pos = GetEntityCoords(playerPed)
-            r = math.rad(GetEntityHeading(playerPed)+90)
-            c = 2
-            newpos = {
-                x = c * math.cos(r) + pos.x,
-                y = c * math.sin(r) + pos.y,
-                z = pos.z + 0.5
-            }
-            
-			if IsControlJustPressed(2,56) then
-				curweaponhash = GetSelectedPedWeapon(playerPed)
-	            curweapon = getWeaponByHash(curweaponhash)
-	            curweapontype = getWeaponType(curweapon)
-	            curammo = GetAmmoInPedWeapon(playerPed,curweaponhash)
-	            curpickup = getWeaponPickup(curweapon)
-	            if curweapontype == "UNARMED" then
-	                exports.notificationmanager:showNotification("Can't drop this weapon.")
-                elseif curpickup == nil then
-                    exports.notificationmanager:showNotification("Can't drop this weapon.")
-				else
-                    if curweapontype == "UNARMED" then
-                        exports.notificationmanager:showNotification('Come on, really?')
-                    elseif curweapontype == "MELEE" then
-                        dropItem(curpickup,-1,newpos.x,newpos.y,newpos.z)
-                        takeWeapon(curweapon)
-                        exports.notificationmanager:showNotification('Dropped a melee weapon')
-                    elseif curweapontype == "GRENADE" then
-                        SetPedAmmo(playerPed,curweaponhash,curammo-1)
-                        dropItem(curpickup,1,newpos.x,newpos.y,newpos.z)
-                        exports.notificationmanager:showNotification('Dropped a grenade')
-                    else
-                        dropItem(curpickup,curammo,newpos.x,newpos.y,newpos.z)
-                        takeWeapon(curweapon)
-                        exports.notificationmanager:showNotification('Dropped a weapon')
-                    end
-                end
-			end
-            if IsControlJustPressed(2,57) then
-	            curweaponhash = GetSelectedPedWeapon(playerPed)
-	            curweapon = getWeaponByHash(curweaponhash)
-	            curweapontype = getWeaponType(curweapon)
-	            curammo = GetAmmoInPedWeapon(playerPed,curweaponhash)
-	            curpickup = getAmmoPickup(curweapon)
-	            if curweapontype == "GRENADE" then
-	                curclipsize = 1
-                elseif curpickup == nil then
-                	exports.notificationmanager:showNotification("Can't drop ammo for this weapon.")
-                    exports.notificationmanager:showNotification(curpickup)
-                else
-                    if curweapontype == "GRENADE" then
-                        SetPedAmmo(playerPed,curweaponhash,curammo-1)
-                        dropItem(curpickup,1,newpos.x,newpos.y,newpos.z)
-                        exports.notificationmanager:showNotification('Dropped a grenade.')
-                    elseif curweapontype == "MELEE" or curweapontype == "UNARMED" then
-                        exports.notificationmanager:showNotification('No ammo to drop!')
-                    else
-                        curclipsize = GetWeaponClipSize(curweaponhash)
-                        if curammo > curclipsize then
-                            newammo = curclipsize
-                            SetPedAmmo(playerPed,curweaponhash,curammo-curclipsize)
-                        else
-                            newammo = curammo
-                            SetPedAmmo(playerPed,curweaponhash,0)
-                        end
-                        dropItem(curpickup,newammo,newpos.x,newpos.y,newpos.z)
-                        exports.notificationmanager:showNotification('Dropped ammo.')
-                    end
-                end
-			end
-            if IsControlJustPressed(2,249) then
-                exports.notificationmanager:showNotification(tostring(GetSelectedPedWeapon(playerPed)))
-            end
-        end
-	end
-end)
-
-
+--Weapon Dictionary
 weapons = {
     ["UNARMED"] = {
         ["HASH"] = -1569615261,
